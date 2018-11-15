@@ -5,17 +5,17 @@ const WebSocket = require('ws');
 const app = express();
 
 //initialize a simple http server
-//const server = http.createServer(app);
+const server = http.createServer(app);
 
 //start our server
-// server.listen(process.env.PORT || 4444, () => {
-//     console.log(`Server started on port ${server.address().port} :)`);
-// });
+server.listen(process.env.PORT || 40510, () => {
+    console.log(`Server started on port ${server.address().port} :)`);
+});
 
 //initialize the WebSocket server instance
-// const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server });
 
-const wss = new WebSocket.Server({ port: 4444 });
+//const wss = new WebSocket.Server({ port: 40510 });
 
 
 function createMessage(content = "", isBroadcast = false, sender = 'NS')  {
@@ -32,9 +32,7 @@ wss.on('connection', (ws) => {
 
     console.log(extWs)
 
-    ws.on('pong', () => {
-        extWs.isAlive = true;
-    });
+    
 
     //connection is up, let's add a simple simple event
     ws.on('message', (msg) => {
@@ -60,12 +58,19 @@ wss.on('connection', (ws) => {
 
     });
 
+
     //send immediatly a feedback to the incoming connection    
     ws.send(createMessage('Hi there, I am a WebSocket server'));
 
     ws.on('error', (err) => {
         console.warn(`Client disconnected - reason: ${err}`);
     })
+
+    // PING PONG 
+    ws.on('pong', () => {
+        extWs.isAlive = true;
+    //console.log('PONG ' + Date())
+    });
 });
 
 setInterval(() => {
@@ -77,6 +82,7 @@ setInterval(() => {
 
         extWs.isAlive = false;
         ws.ping(null, undefined);
+    //    console.log('PING ' + Date())
     });
 }, 10000);
 
